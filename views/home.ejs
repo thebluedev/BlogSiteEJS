@@ -1,0 +1,30 @@
+<%- include("./partials/header") %>
+<body>
+  
+  <h1><%= pageTitle %></h1>
+  
+  <p><%= homeP %></p>
+  <% posts.forEach((e)=>{ %>
+    
+    <% let title = e.title%> 
+  
+    <h1><%= title %></h1>
+  
+    <%  function truncate(str,title){%> 
+    
+    <% let length = 100%>
+    
+    <% let myString = str %>
+    
+    <% let myTruncatedString = myString.substring(0,length)%>
+    
+    <p><%= myTruncatedString %>... </p><a href="/posts/<%=title%>">Read more</a>
+    <%}%> 
+  
+    <% truncate(e.content,e.title)%>   
+  
+  
+  <% }) %>
+</body>
+<%- include("./partials/footer") %>
+

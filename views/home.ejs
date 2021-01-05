@@ -18,14 +18,13 @@
     
     <% let myTruncatedString = myString.substring(0,length)%>
     
-    <p><%= myTruncatedString %> ...</p><a href="/posts/<%=title%>">Read more</a>
+    <p><%= myTruncatedString %> ...</p><a href="/posts/<%=e._id%>">Read more</a>
     <%}%> 
   
     <% truncate(e.content,e.title)%>   
   
   
   <% }) %>
-  <button class="btn btn-primary"><a href="/compose">Compose</a></button>
+  <button class="btn btn-outline-primary"><a href="/compose">Compose</a></button>
 </body>
 <%- include("./partials/footer") %>
-

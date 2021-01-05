@@ -5,6 +5,16 @@ const express = require("express");
 const bodyParser = require("body-parser");
 
 const _ = require("lodash");
+const mongoose = require("mongoose");
+mongoose.connect("mongodb://localhost:27017/postsDB", {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+const postsSchema = new mongoose.Schema({
+  title: String,
+  content: String,
+});
+const Post = mongoose.model("POST", postsSchema);
 
 const homeStartingContent =
   "Lacus vel facilisis volutpat est velit egestas dui id ornare. Semper auctor neque vitae tempus quam. Sit amet cursus sit amet dictum sit amet justo. Viverra tellus in hac habitasse. Imperdiet proin fermentum leo vel orci porta. Donec ultrices tincidunt arcu non sodales neque sodales ut. Mattis molestie a iaculis at erat pellentesque adipiscing. Magnis dis parturient montes nascetur ridiculus mus mauris vitae ultricies. Adipiscing elit ut aliquam purus sit amet luctus venenatis lectus. Ultrices vitae auctor eu augue ut lectus arcu bibendum at. Odio euismod lacinia at quis risus sed vulputate odio ut. Cursus mattis molestie a iaculis at erat pellentesque adipiscing.";
@@ -24,11 +34,16 @@ app.use(express.static("public"));
 var posts = [];
 
 app.get("/", (req, res) => {
-  res.render("home", {
-    pageTitle: "Home",
-    homeP: homeStartingContent,
-    posts: posts,
+  Post.find({}, (err, posts) => {
+    if (!err) {
+      res.render("home", {
+        pageTitle: "Home",
+        homeP: homeStartingContent,
+        posts: posts,
+      });
+    }
   });
+
   return;
 });
 
@@ -48,27 +63,11 @@ app.get("/compose", (req, res) => {
 });
 
 app.get("/posts/:id", (req, res) => {
-  let requestedTitle = _.lowerCase(req.params.id);
-  //added for debuggin
-  // console.log(requestedTitle);
-  posts.forEach((post) => {
-    let reqtitle = post.title;
-    reqtitle = _.lowerCase(reqtitle);
-    let postBody = post.content;
-    if (reqtitle === requestedTitle) {
-      res.render("post", { postName: reqtitle, postContent: postBody });
-      //added for debuggin
-      // console.log("match found");
-      return;
-    }
+  const requestedPostId = req.params.id
+  Post.findOne({ _id: requestedPostId }, function (err, post) {
+    if(!err){res.render("post", { postName: post.title, postContent: post.content })}
+      
   });
-  // for(let i = 0; i < posts.length; i++){
-  // if(posts[i].title === postName){
-  //   console.log("Match found");
-  //   return
-  // }else{
-  //   console.log("no match found");
-  // }}
   return;
 });
 
@@ -77,11 +76,17 @@ app.post("/compose", (req, res) => {
     title: req.body.postTitle.trim(),
     content: req.body.postBody.trim(),
   };
-  posts.push(post);
-  res.redirect("/");
+  const post1 = new Post({
+    title: req.body.postTitle.trim(),
+    content: req.body.postBody.trim(),
+  });
+  post1.save(function (err) {
+    if (!err) {
+      res.redirect("/");
+    }
+  });
   return;
 });
-
 app.listen(process.env.PORT || 3000, function () {
   console.log("Server started on http://localhost:3000");
 });
